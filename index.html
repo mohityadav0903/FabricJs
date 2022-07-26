@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canva uplaod and zoomToPoint</title>
+    <script src="https://unpkg.com/fabric@5.2.1/dist/fabric.min.js"></script>
+    <style>
+      body{
+          background-color: #2d333b;
+          color: aliceblue;
+      }
+      .main{
+          display: flex;
+          justify-content: center;
+          flex-direction: column;
+          align-items: center;
+      }
+        #c{
+            border: 2px black solid;
+            background-color: aliceblue;
+        }
+        img{
+            display: none;
+            height: 200px !important;
+            width: 200px !important;
+        }
+        input,button{
+            margin-top: 30px;
+        }
+   button{
+       background-color: rgb(86, 220, 235);
+       color: black;
+       font-weight: 900;
+       cursor: pointer;
+   }
+    </style>
+</head>
+<body>
+  <div class="main">
+    <canvas id="c"></canvas>
+     <input type="file" name="" id="" onchange="previewimage(this)"> 
+    <img src="" alt="" id="preview">
+   <button onclick="setimage()"><h3>Upload to canvas</h3></button>
+</div>
+</body>
+<script> 
+    function previewimage(input){
+       
+    var reader = new FileReader();
+    reader.onload=  function (e){
+    document.getElementById("preview").setAttribute("src",e.target.result)
+    }
+    console.log(input.files)
+    reader.readAsDataURL(input.files[0]);
+    
+}
+var canvas = new fabric.Canvas('c');
+canvas.setDimensions({width:950, height:500});
+    function setimage(){
+    var imgElement =  document.getElementById('preview');
+   var imgInstance = new fabric.Image(imgElement, {
+    angle: 0,
+    opacity: 1,
+    });
+   canvas.add(imgInstance);
+   canvas.centerObject(imgInstance);
+
+canvas.on('mouse:wheel', function(opt) {
+var delta = opt.e.deltaY;
+var pointer = canvas.getPointer(opt.e);
+var zoom = canvas.getZoom();
+zoom *= 0.999 ** delta;
+if (zoom > 20) zoom = 20;
+if (zoom < 1) zoom = 1;
+canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+opt.e.preventDefault();
+opt.e.stopPropagation();
+var vpt = this.viewportTransform;
+console.log(vpt)
+if (zoom < 400 / 1000) {
+  vpt[4] = 200 - 1000 * zoom / 2;
+  vpt[5] = 200 - 1000 * zoom / 2;
+} else {
+  if (vpt[4] >= 0) {
+    vpt[4] = 0;
+  } else if (vpt[4] < canvas.getWidth() - 1000 * zoom) {
+    vpt[4] = canvas.getWidth() - 1000 * zoom;
+  }
+  else if (vpt[4] < canvas.getHeight() - 1000 * zoom) {
+    vpt[4] = canvas.getHeight() - 1000 * zoom;
+  }
+  if (vpt[5] >= 0) {
+    vpt[5] = 0;
+  } else if (vpt[5] < canvas.getHeight() - 1000 * zoom) {
+    vpt[5] = canvas.getHeight() - 1000 * zoom;
+  } else if (vpt[5] < canvas.getWidth() - 1000 * zoom) {
+    vpt[5] = canvas.getWidth() - 1000 * zoom;
+  }
+  
+}
+})
+}
+
+</script>
+</html>
